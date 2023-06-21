@@ -39,7 +39,7 @@ public class AuthController {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom("javaS5@cntt.com", "Song Phi");
+        helper.setFrom("javaS5@cntt.com", "Phan Thau");
         helper.setTo(recipientEmail);
 
         String subject = "Link password";

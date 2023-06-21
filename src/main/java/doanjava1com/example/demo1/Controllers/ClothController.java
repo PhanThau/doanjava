@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import doanjava1com.example.demo1.Services.CartService;
+import doanjava1com.example.demo1.daos.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
@@ -35,12 +37,15 @@ import doanjava1com.example.demo1.Services.CategoryService;
 import doanjava1com.example.demo1.Utils.FileUploadUtil;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/clothes")
 public class ClothController {
     @Autowired
     private ClothServices clothServices;
+    @Autowired
+    private CartService cartService;
     @GetMapping
     public String viewHomePage(Model model) {
         return viewAllBook(model, 1, "id", "asc", " ");
@@ -52,7 +57,7 @@ public class ClothController {
                               @Param("keyword") String keyword) {
         sortField = sortField==null?"id":sortField;
         sortType = sortType==null?"asc":sortType;
-        String trimmedKeyword = keyword.trim();
+        //String trimmedKeyword = keyword.trim();
         Page<Cloth> page = clothServices.listAllWithOutDelete(pageNum, sortField, sortType, keyword);
         List<Cloth> listCloth = page.getContent();
         model.addAttribute("currentPage", pageNum);
@@ -147,5 +152,17 @@ public class ClothController {
         // write all users to csv file
         writer.write(cloths);
     }
+    @PostMapping("/add-to-cart")
+    public String addToCart(HttpSession session,
+                            @RequestParam long id,
+                            @RequestParam String name,
+                            @RequestParam double price,
+                            @RequestParam(defaultValue = "1") int quantity) {
+        var cart = cartService.getCart(session);
+        cart.addItems(new Item(id, name, price, quantity));
+        cartService.updateCart(session, cart);
+        return "redirect:/clothes";
+    }
+
 
 }
